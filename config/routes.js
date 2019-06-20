@@ -17,7 +17,11 @@ const endpoints = {
 
     GET_SET_LIST: '/sets',
     POST_SET: '/set',
-    POST_SET_UPDATE: '/set/:setId'
+    POST_SET_UPDATE: '/set/:setId',
+    DELETE_VISUAL_FROM_SET: '/set/:setId/visual/:visualID',
+
+    GET_VISUAL_META: '/visuals',
+    POST_VISUAL_META: '/visuals/:visualID'
 }
 
 module.exports = endpoints;

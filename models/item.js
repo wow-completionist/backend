@@ -3,17 +3,17 @@ const { Schema, model } = require('mongoose');
 const ItemSchema = new Schema({
     invType: String,
     visualID: Number,
-    isCollected: Boolean,
     sourceID: Number,
+    isHideVisual: Boolean,
     itemID: Number,
     itemModID: String,
     categoryID: String,
-    quality: String,
-    isHideVisual: Boolean,
     name: String,
-    isPrimary: Boolean,
+    quality: String,
     useError: String,
-    sourceType: String
+    sourceType: String,
+    isPrimary: Boolean,
+
 }, {
     timestamps: true
 });

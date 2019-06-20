@@ -82,5 +82,34 @@ module.exports = function setupSetRoutes(router) {
         }
     )
 
+    router.delete(endpoints.DELETE_VISUAL_FROM_SET,
+        async function postSetUpdateEndpoint (req, res) {
+            try {
+                logger.info(`DELETE_VISUAL_FROM_SET Request received | params: ${JSON.stringify(req.params)}`, req)
+
+                const {setId, visualID} = req.params;
+
+                const updateSet = await SetModel.findOne({ setId });
+                if (!updateSet) {
+                    return res.status(400).send({ err:`Set ID "${updateSetId}" not found in database.` })
+                }
+
+                if (updateSet.visuals && !updateSet.visuals.includes(visualID)) {
+                    return res.status(400).send({err:`Visual ID "${visualID}" not in Set ID "${setId}"`})
+                }
+                const result = await SetModel.updateOne({ setId }, { $pull: { visuals: visualID } });
+
+                logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
+
+                return res.status(200).send(result);
+            }
+            catch (err) {
+                logger.error(err);
+                res.status(400).send({ err });
+            }
+        }
+    )
+
+
     return router
 }

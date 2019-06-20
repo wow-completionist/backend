@@ -31,21 +31,30 @@ module.exports = function setupRoutes (router) {
 
     router.get(
         endpoints.GET_USER_BY_ID,
-        auth.tokenCheck,
+        // auth.tokenCheck,
         async function getUserByIdEndpoint (req, res) {
             logger.info('GET_USER_BY_ID Request received', req)
+            const { userId } = req.params;
 
-            if (req.token.userId !== req.params.userId) {
-                logger.info('Token does not match requested user', req)
-                return res.status(401).send()
+            if (!userId) {
+                return res.status(400).send({error: 'Missing userId.'})
             }
+
+            // if (req.token.userId !== req.params.userId) {
+            //     logger.info('Token does not match requested user', req)
+            //     return res.status(401).send()
+            // }
 
             try {
                 const findResult = await UserModel
-                    .findOne({userId: req.params.userId})
+                    .findOne({ userId })
                     .select('-passwordHash')
 
-                logger.info(`findResult: ${JSON.stringify(findResult)}`);
+                if (!findResult) {
+                    return res.status(400).send({error: `userId:${userId} not found in DB.`})
+                }
+
+                logger.info(`GET_USER_BY_ID ${userId} success`);
                 res.status(200).send(findResult);
             }
             catch (err) {
