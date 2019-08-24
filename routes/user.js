@@ -46,11 +46,10 @@ module.exports = function setupRoutes (router) {
             // }
 
             try {
-                const findResult = await UserModel
-                    .findOne({ userId })
-                    .select('-passwordHash')
+                const findResult = await UserModel.findOne({ id: userId })
 
                 if (!findResult) {
+                    logger.error(`User not found:${userId}`)
                     return res.status(400).send({error: `userId:${userId} not found in DB.`})
                 }
 
@@ -85,30 +84,22 @@ module.exports = function setupRoutes (router) {
 
     router.post(endpoints.POST_COLLECTED,
         bodyParser.json(),
-        auth.tokenCheck,
         async function postUserEndpoint (req, res) {
             try {
-                if (!req.token || !req.token.verified) {
-                    return res.status(400).send()
-                }
-                logger.info('POST_COLLECTED Request received', req)
+                const { userId } = req.params;
+                const collected = req.body;
+                logger.info(`POST_COLLECTED Request received | userId:${userId} - collected (count):${collected ? collected.length : ''}`)
 
-                const {collected} = req.body;
                 if (!collected || collected.length === 0) {
                     logger.info('Missing data in collected property')
                     return res.status(400).send({error: 'Missing data in collected property'})
                 }
 
-                let collectedArray = collected
-                    .split(':')
-                    .filter(sourceID => sourceID !== '' && !isNaN(sourceID))
-                    .map(sourceID => parseInt(sourceID));
+                await UserModel.findOneAndUpdate({ id: userId }, { collected });
 
-                await UserModel.findOneAndUpdate({userId:req.token.userId}, {collected: collectedArray});
+                logger.info(`Saved ${collected.length} sourceIDs`)
 
-                logger.info(`Saved ${collectedArray.length} sourceIDs`)
-
-                res.status(200).send({message: `Saved ${collectedArray.length} sourceIDs`});
+                res.status(200).send({message: `Saved ${collected.length} sourceIDs for user:${userId}`});
             }
             catch (err) {
                 logger.error(err);

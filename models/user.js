@@ -2,24 +2,14 @@ const { Schema, Model, model } = require('mongoose');
 const bcrypt = require('bcryptjs')
 
 const UserSchema = new Schema({
-    userId: {
-        type: String, //uuid
+    id: {
+        type: String, // from battle.net
         required: true
     },
-    userName: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    passwordHash: {
-        type: String
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    collected: [Number]
+    battletag: String, // from battle.net
+    characterData: [Schema.Types.Mixed], // from battle.net
+    collected: [Number],
+    role: String
 }, {
     timestamps: true
 })

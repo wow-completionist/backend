@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 const express = require('express');
 const querystring = require('querystring');
-const request = require('request')
+const request = require('request-promise-native')
 
 const logger = require('../lib/logger');
 const UserModel = require('../models/user');
@@ -9,31 +9,38 @@ const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
 const auth = require('../lib/auth');
 
+const uuidv4 = require('uuid/v4');
+
 let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback';
 
 module.exports = function setupRoutes(router) {
     router.get(
         '/login',
         async function (req, res) {
+            logger.info('Login requested - redirecting to battle.net', req);
             res.redirect('https://us.battle.net/oauth/authorize?' +
                 querystring.stringify({
                     response_type: 'code',
                     client_id: process.env.WOW_CLIENT_ID,
-                    scope: 'user-read-private user-read-email',
-                    redirect_uri
+                    scope: 'wow.profile',
+                    redirect_uri,
+                    state: 'edfrgth45678'
                 })
             )
         }
     )
 
-    router.get('/callback', function (req, res) {
+    router.get('/callback', async function (req, res) {
+        logger.info('Callback received from battle.net, now confirming', req)
         let code = req.query.code || null
         let authOptions = {
             url: 'https://us.battle.net/oauth/token',
             form: {
                 code: code,
                 redirect_uri,
-                grant_type: 'authorization_code'
+                grant_type: 'authorization_code',
+                scope: 'wow.profile',
+
             },
             headers: {
                 'Authorization': 'Basic ' + (new Buffer(
@@ -42,52 +49,70 @@ module.exports = function setupRoutes(router) {
             },
             json: true
         }
-        request.post(authOptions, function (error, response, body) {
-            var access_token = body.access_token
-            let uri = process.env.FRONTEND_URI || 'http://localhost:3000'
-            res.redirect(uri + '?access_token=' + access_token)
-        })
+
+        let uri = process.env.FRONTEND_URI || 'http://localhost:3000'
+        let response;
+        try {
+            response = await request.post(authOptions)
+            logger.info(`Confirmation response from bnet: ${JSON.stringify(response)}`)
+        } catch (error) {
+            logger.error('Error during callback confirmation with battle.net');
+            logger.error(error);
+            return res.redirect(uri + '/login_failed')
+        }
+
+        logger.info(`Confirmation accepted | response:${JSON.stringify(response)}`)
+        var accessToken = response.access_token;
+
+        let result;
+        let userData
+        try {
+            result = await request.get('https://us.battle.net/oauth/userinfo?access_token=' + accessToken)
+            userData = JSON.parse(result);
+            logger.info(`User Data from battle.net: ${JSON.stringify(userData)}`)
+        } catch (err) {
+            logger.error(`Error fetching user data from battle.net: ${err}`);
+            logger.error(err);
+            return res.redirect(uri + '/login_failed')
+        }
+
+        // create account for user
+        try {
+            const userFound = UserModel.findOne({ id: userData.id });
+            if (!userFound) {
+                await UserModel.create(userData);
+            }
+        } catch (err) {
+            console.log(`Error creating db account for user ${result}`)
+            console.log(err);
+            return res.redirect(uri + '/login_failed')
+        }
+
+        logger.info(`Redirecting browser to ${uri} with token ${accessToken}`)
+        return res.redirect(`${uri}/login_success?access_token=${accessToken}&id=${userData.id}&battletag=${encodeURIComponent(userData.battletag)}`)
     })
 
-    // router.post(
-        //     endpoints.POST_LOGIN,
-        //     bodyParser.json(),
-        //     async function postLoginEndpoint (req, res) {
-        //         try {
-        //             logger.info('POST_LOGIN Request received')
-        //             logger.info(`req.body: ${JSON.stringify(req.body)}`)
+    router.get(
+        '/userCharacters',
+        async function (req, res) {
+            logger.info('Wow Character Data requested', req);
+            let accessToken = req.query.access_token || null
 
-        //             const userResult = await UserModel.findOne({email: req.body.email})
+            let response;
+            try {
+                response = await request.get('https://us.api.blizzard.com/wow/user/characters?access_token=' + accessToken)
+            } catch (error) {
+                logger.error('Error during callback confirmation with battle.net');
+                console.error(error);
+                return res.status(error.statusCode || 400).send({err:error})
+            }
 
-        //             if (!userResult) {
-        //                 const msg = 'User not found or wrong password.' //obfuscate problem
-        //                 const logId = logger.info(msg)
-        //                 return res.status(200).send({msg, logId})
-        //             }
+            logger.info('Successful call to get character info')
+            logger.info(response)
+            return res.status(200).send(response)
 
-        //             logger.info(`User find result: ${JSON.stringify(userResult)}`)
-
-        //             if (!userResult.comparePassword(req.body.password)) {
-        //                 const msg = 'User not found or wrong password.' //obfuscate problem
-        //                 const logId = logger.info(msg)
-        //                 return res.status(200).send({msg, logId})
-        //             }
-
-        //             const userData = userResult.toObject()
-
-        //             delete userData.passwordHash
-        //             delete userData.__v
-        //             delete userData._id
-
-        //             const token = auth.createToken(userData.userId);
-
-        //             return res.status(200).send({token, ...userData})
-        //         } catch(error) {
-        //             const logId = logger.error(error)
-        //             return res.status(500).send({msg:'Unexpected server error.', logId})
-        //         }
-        //     }
-    // )
+        }
+    )
 
     return router
 }

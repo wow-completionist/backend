@@ -6,13 +6,15 @@ const cors = require('cors');
 const uuidv4 = require('uuid/v4');
 
 const endpoints = require('../config/routes');
+const util = require('../lib/util');
 const SetModel = require('../models/set');
+const UserModel = require('../models/user');
 
 module.exports = function setupSetRoutes(router) {
     router.get(
         endpoints.GET_SET_LIST,
         async function getSetListEndpoint (req, res) {
-            logger.info('GET_SET_LIST Request received')
+            logger.info('GET_SET_LIST Request received', req)
             try {
                 const findResult = await SetModel.find({}).lean();
                 logger.info(`Found: ${findResult.length} sets`, req);
@@ -28,9 +30,18 @@ module.exports = function setupSetRoutes(router) {
         bodyParser.json(),
         async function postSetEndpoint (req, res) {
             try {
-                logger.info(`POST_SET Request received | req.body: ${JSON.stringify(req.body)}`, req)
+                logger.info('POST_SET Request received', req)
 
-                const newSet = req.body
+                // Permission check
+                if (!req.body || !req.headers.id) {
+                    return res.status(400).send({ error: 'Malformed request.' });
+                }
+                const userData = await UserModel.findOne({id: req.headers.id});
+                if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
+                    return res.status(403).send({ error: 'Permission denied.' });
+                }
+
+                const newSet = req.body.data
 
                 // Could not get mongoose to validate the unique slug, so must check manually
                 const dupeCheck = await SetModel.find({ name: newSet.name });
@@ -52,24 +63,48 @@ module.exports = function setupSetRoutes(router) {
         }
     )
 
+    // Changes to a set record from frontend admin
     router.post(endpoints.POST_SET_UPDATE,
         bodyParser.json(),
+        util.routeLogs('POST_SET_UPDATE'),
         async function postSetUpdateEndpoint (req, res) {
             try {
-                logger.info(`POST_SET Request received | req.body: ${JSON.stringify(req.body)}`, req)
+                const { body: updates = {}} = req;
+                const { visualID, slot } = updates;
+                const { id: userId } = req.headers;
+                const { setId: updateSetId } = req.params;
 
-                const updateSetId = req.params.setId;
-                const {visualID} = req.body;
+                // Validate request
+                if (!userId) {
+                    return res.status(400).send({ error: 'Malformed request. Missing user ID.' });
+                }
+
+                // Permission check
+                const userData = await UserModel.findOne({id: userId});
+                if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
+                    return res.status(403).send({ error: 'Permission denied.' });
+                }
 
                 const updateSet = await SetModel.findOne({ setId: updateSetId });
                 if (!updateSet) {
+                    logger.info(`Status 400: Set ID "${updateSetId}" not found in database.`)
                     return res.status(400).send({err:`Set ID "${updateSetId}" not found in database.`})
                 }
 
-                if (updateSet.visuals && updateSet.visuals.includes(visualID)) {
-                    return res.status(400).send({err:`Visual ID "${visualID}" already in Set ID "${updateSetId}"`})
+                if (!visualID && !slot) {
+                    const result = await SetModel.updateOne({setId: updateSetId}, updates);
+                    logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
+                    return res.status(200).send(result);
                 }
-                const result = await SetModel.updateOne({setId: updateSetId}, { $push: { visuals: visualID } });
+
+                if (!visualID && !slot) {
+                    logger.info(`Status 400: Missing update data. | body: ${updates}`);
+                    return res.status(400).send({err:'Insufficient data to update.'})
+                }
+
+                const update = {};
+                update[slot] = visualID;
+                const result = await SetModel.updateOne({setId: updateSetId}, { $set: update });
 
                 logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
 
@@ -83,33 +118,49 @@ module.exports = function setupSetRoutes(router) {
     )
 
     router.delete(endpoints.DELETE_VISUAL_FROM_SET,
+        util.routeLogs('DELETE_VISUAL_FROM_SET'),
         async function postSetUpdateEndpoint (req, res) {
             try {
-                logger.info(`DELETE_VISUAL_FROM_SET Request received | params: ${JSON.stringify(req.params)}`, req)
+                const { id: userId } = req.headers;
+                const {setId, slot, visualID} = req.params;
 
-                const {setId, visualID} = req.params;
+                // Validate request
+                if (!userId) {
+                    return res.respond(400, { error: 'Malformed request. Missing user ID.' });
+                }
+                if (!setId || !slot || !visualID) {
+                    return res.respond(400, { error: 'Malformed request. Missing one or more params.' });
+                }
+
+                // Permission check
+                const userData = await UserModel.findOne({id: userId});
+                if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
+                    return res.respond(403, { error: 'Permission denied.' });
+                }
 
                 const updateSet = await SetModel.findOne({ setId });
                 if (!updateSet) {
-                    return res.status(400).send({ err:`Set ID "${updateSetId}" not found in database.` })
+                    return res.respond(400, { err:`Set ID "${updateSetId}" not found in database.` });
                 }
 
-                if (updateSet.visuals && !updateSet.visuals.includes(visualID)) {
-                    return res.status(400).send({err:`Visual ID "${visualID}" not in Set ID "${setId}"`})
+                if (!updateSet[slot] || !updateSet[slot] == visualID) {
+                    return res.respond(400, {err:`Visual ID "${visualID}" is not assigned to slot "${slot}" in set "${setId}"`});
                 }
-                const result = await SetModel.updateOne({ setId }, { $pull: { visuals: visualID } });
+
+                const update = {};
+                update[slot] = null;
+                const result = await SetModel.updateOne({ setId }, { $set: update });
 
                 logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
 
-                return res.status(200).send(result);
+                return res.respond(200, result);
             }
             catch (err) {
                 logger.error(err);
-                res.status(400).send({ err });
+                res.respond(400, { err });
             }
         }
     )
-
 
     return router
 }

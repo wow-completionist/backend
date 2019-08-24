@@ -1,19 +1,17 @@
 const { Schema, model } = require('mongoose');
 
 const ItemSchema = new Schema({
-    invType: String,
+    invType: Number,
     visualID: Number,
     sourceID: Number,
     isHideVisual: Boolean,
     itemID: Number,
-    itemModID: String,
-    categoryID: String,
+    itemModID: Number,
+    categoryID: Number,
     name: String,
-    quality: String,
+    quality: Number,
     useError: String,
-    sourceType: String,
-    isPrimary: Boolean,
-
+    sourceType: Number,
 }, {
     timestamps: true
 });
