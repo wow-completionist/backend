@@ -9,7 +9,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 
-module.exports = function setupItemRoutes(router) {
+module.exports = function setupVidualMetaRoutes(router) {
     router.get(
         endpoints.GET_VISUAL_META,
         async function getVisualMetaEndpoint (req, res) {

@@ -9,10 +9,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
 
-module.exports = function setupItemRoutes(router) {
+module.exports = function setupSourceRoutes(router) {
     router.get(
         endpoints.GET_SOURCE_LIST,
-        async function getItemListEndpoint (req, res) {
+        async function getSourceListEndpoint (req, res) {
             logger.info('GET_SOURCE_LIST Request received', req)
             try {
                 const findResult = await ItemModel.find({}).lean();
@@ -27,7 +27,7 @@ module.exports = function setupItemRoutes(router) {
 
     router.post(endpoints.POST_DUMP,
         bodyParser.json({limit: '100MB'}),
-        async function postItemEndpoint (req, res) {
+        async function postDumpEndpoint (req, res) {
             try {
                 logger.info('POST_DUMP Request received')
 

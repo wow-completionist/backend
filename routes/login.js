@@ -13,7 +13,7 @@ const uuidv4 = require('uuid/v4');
 
 let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback';
 
-module.exports = function setupRoutes(router) {
+module.exports = function setupLoginRoutes (router) {
     router.get(
         '/login',
         async function (req, res) {

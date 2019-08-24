@@ -1,7 +1,7 @@
 const express = require( 'express')
 const logger = require( '../lib/logger')
 
-module.exports = function (router) {
+module.exports = function setupCatchAllRoute (router) {
     router.all(
         '*',
         function catchAllEndpoint (req, res) {

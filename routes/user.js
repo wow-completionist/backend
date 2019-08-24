@@ -6,7 +6,7 @@ const auth = require('../lib/auth');
 const UserModel = require('../models/user');
 const endpoints = require('../config/routes');
 
-module.exports = function setupRoutes (router) {
+module.exports = function setupUserRoutes (router) {
     router.get(
         endpoints.GET_USER_LIST,
         auth.tokenCheck,
