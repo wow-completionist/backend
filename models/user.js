@@ -1,4 +1,4 @@
-const { Schema, Model, model } = require('mongoose');
+const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs')
 
 const UserSchema = new Schema({
@@ -9,7 +9,8 @@ const UserSchema = new Schema({
     battletag: String, // from battle.net
     characterData: [Schema.Types.Mixed], // from battle.net
     collected: [Number],
-    role: String
+    role: String,
+    token: String
 }, {
     timestamps: true
 })

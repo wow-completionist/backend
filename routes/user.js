@@ -31,19 +31,18 @@ module.exports = function setupUserRoutes (router) {
 
     router.get(
         endpoints.GET_USER_BY_ID,
-        // auth.tokenCheck,
+        auth.tokenCheck,
         async function getUserByIdEndpoint (req, res) {
-            logger.info('GET_USER_BY_ID Request received', req)
             const { userId } = req.params;
 
             if (!userId) {
                 return res.status(400).send({error: 'Missing userId.'})
             }
 
-            // if (req.token.userId !== req.params.userId) {
-            //     logger.info('Token does not match requested user', req)
-            //     return res.status(401).send()
-            // }
+            if (req.token.userId != userId) {
+                logger.info('Token does not match requested user', req)
+                return res.status(401).send()
+            }
 
             try {
                 const findResult = await UserModel.findOne({ id: userId })

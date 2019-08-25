@@ -2,6 +2,8 @@ const endpoints = {
     GET_ROOT: '/',
 
     POST_LOGIN: '/login',
+    GET_CALLBACK: '/callback',
+    GET_USER_CHARACTERS: '/userCharacters',
 
     GET_SOURCE_LIST: '/sources',
     POST_FETCH_SOURCE_NAME: '/source/fetchName/:sourceID',

@@ -61,7 +61,6 @@ module.exports = function setupLoginRoutes (router) {
             return res.redirect(uri + '/login_failed')
         }
 
-        logger.info(`Confirmation accepted | response:${JSON.stringify(response)}`)
         var accessToken = response.access_token;
 
         let result;
@@ -78,10 +77,9 @@ module.exports = function setupLoginRoutes (router) {
 
         // create account for user
         try {
-            const userFound = UserModel.findOne({ id: userData.id });
-            if (!userFound) {
-                await UserModel.create(userData);
-            }
+            userData.token = accessToken;
+            const userFound = await UserModel.findOneAndUpdate({ id: userData.id }, userData, {upsert: true, new: true}).lean();
+            logger.info(`User record updated: ${JSON.stringify(userFound)}`)
         } catch (err) {
             console.log(`Error creating db account for user ${result}`)
             console.log(err);
