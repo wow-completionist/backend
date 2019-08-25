@@ -43,7 +43,7 @@ module.exports = function setupLoginRoutes (router) {
 
             },
             headers: {
-                'Authorization': 'Basic ' + (new Buffer(
+                Authorization: 'Basic ' + (new Buffer(
                     process.env.WOW_CLIENT_ID + ':' + process.env.WOW_CLIENT_SECRET
                 ).toString('base64'))
             },

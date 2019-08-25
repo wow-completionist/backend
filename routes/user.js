@@ -18,7 +18,7 @@ module.exports = function setupUserRoutes (router) {
             try {
                 const findResult = await UserModel
                     .find({})
-                    .select('-passwordHash')
+                    .select('-token')
 
                 logger.info(`found: ${findResult.length} users`);
                 return res.status(200).send(findResult);
@@ -40,18 +40,22 @@ module.exports = function setupUserRoutes (router) {
                 return res.status(400).send({error: 'Missing userId.'})
             }
 
-            if (req.token.userId != userId) {
-                logger.info('Token does not match requested user', req)
+            if (!req.token.verified) {
+                logger.info('Unauthorized request', req)
                 return res.status(401).send()
             }
 
+            if (req.token.tokenUser.id != userId) {}
+
             try {
-                const findResult = await UserModel.findOne({ id: userId })
+                const findResult = await UserModel.findOne({ id: userId }).lean();
 
                 if (!findResult) {
                     logger.error(`User not found:${userId}`)
                     return res.status(400).send({error: `userId:${userId} not found in DB.`})
                 }
+
+                delete findResult.token;
 
                 return res.respond(200, findResult);
             }
@@ -84,13 +88,13 @@ module.exports = function setupUserRoutes (router) {
 
     router.post(
         endpoints.POST_COLLECTED,
-        util.routeLogs('POST_COLLECTED'),
         bodyParser.json(),
+        util.routeLogs('POST_COLLECTED'),
+        auth.tokenCheck,
         async function postUserEndpoint (req, res) {
             try {
-                const { userId } = req.params;
+                const { id: userId } = req.token.tokenUser;
                 const collected = req.body;
-                logger.info(`POST_COLLECTED Request received | userId:${userId} - collected (count):${collected ? collected.length : ''}`)
 
                 if (!collected || collected.length === 0) {
                     logger.info('Missing data in collected property')

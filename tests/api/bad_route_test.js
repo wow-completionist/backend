@@ -8,10 +8,10 @@ describe('Bad route |', () => {
 
         expect(res.status).to.equal(404)
         expect(res.body).to.deep.equal({
-            'status': '404',
-            'message': 'Route not found',
-            'method': 'GET',
-            'url': '/foo'
+            status: '404',
+            message: 'Route not found',
+            method: 'GET',
+            url: '/foo'
         })
     })
 })

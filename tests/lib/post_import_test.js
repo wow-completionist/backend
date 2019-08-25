@@ -2,7 +2,7 @@ const {expect} = require('chai');
 
 const base = require('../base');
 const importLib = require('../../lib/import');
-const SourceModel = require('../../models/item');
+const SourceModel = require('../../models/source');
 
 describe('importLib method', function () {
     afterEach(base.resetMongoose);
@@ -24,26 +24,10 @@ describe('importLib method', function () {
         });
 
         await importLib({
-            1: { sourceID: 43570, name: 'Malevolent Gladiator\'s Spellblade', sourceType: 'Boss' }
+            1: { sourceID: 43570, name: 'Malevolent Gladiator\'s Spellblade', sourceType: 1 }
         });
 
         const savedItems = await SourceModel.find({});
-        expect(savedItems[0].sourceType).to.equal('Boss')
-    });
-
-    it('should ignore unchanged items', async function () {
-        await SourceModel.create({
-            sourceID: 43570,
-            name: 'Malevolent Gladiator\'s Spellblade'
-        });
-
-        const result = await importLib({
-            43570: { sourceID: 43570, name: 'Malevolent Gladiator\'s Spellblade' }
-        });
-
-        expect(result).to.deep.equal({
-            'new': 0,
-            'updates': 0
-            })
+        expect(savedItems[0].sourceType).to.equal(1)
     });
 });

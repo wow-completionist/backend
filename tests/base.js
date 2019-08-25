@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const logger = require('../lib/logger');
-const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid/v4');
 const UserModel = require('../models/user');
 
@@ -70,19 +69,15 @@ async function closeApp() {
 
 async function setFixtureUser(customProperties = {}) {
     const defaults = {
-        'userId': uuidv4(),
-        'userName': 'Fixture User',
-        'password': 'fixture password',
-        'email': 'fixture@email.com'
+        id: uuidv4()
     }
 
     const modifiedFixture = Object.assign(defaults, customProperties)
     return await UserModel.create(modifiedFixture);
 }
 
-function createToken (userId) {
-    userId = userId? userId : uuidv4()
-    return jwt.sign(userId, 'test-secret')
+function createToken () {
+    return uuidv4();
 }
 
 // These can sometimes catch and display errors that are otherwise swallowed in the Milton log

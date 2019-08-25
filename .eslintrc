@@ -21,6 +21,8 @@
         "arrow-body-style": "off",
         "camelcase": "warn",
         "semi-style": ["error", "last"],
-        "no-unused-vars":"error"
+        "no-unused-vars": "error",
+        "quote-props": ["error","as-needed"],
+        "no-multiple-empty-lines": "error"
     }
 }
