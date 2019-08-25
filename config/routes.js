@@ -5,7 +5,7 @@ const endpoints = {
 
     GET_SOURCE_LIST: '/sources',
     POST_FETCH_SOURCE_NAME: '/source/fetchName/:sourceID',
-    POST_DUMP: '/dump',
+    POST_IMPORT: '/import',
 
     GET_USER_LIST: '/users',
     GET_USER_BY_ID: '/user/:userId',

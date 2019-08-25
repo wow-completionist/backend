@@ -1,10 +1,11 @@
 const express = require('express');
 const logger = require('../lib/logger');
-const dumpLib = require('../lib/dump');
+const importLib = require('../lib/import');
 const ItemModel = require('../models/item');
 const UserModel = require('../models/user');
 const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
+const util = require('../lib/util');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const axios = require('axios');
@@ -25,12 +26,12 @@ module.exports = function setupSourceRoutes(router) {
         }
     )
 
-    router.post(endpoints.POST_DUMP,
+    router.post(
+        endpoints.POST_IMPORT,
         bodyParser.json({limit: '100MB'}),
-        async function postDumpEndpoint (req, res) {
+        util.routeLogs('POST_IMPORT'),
+        async function postImportEndpoint (req, res) {
             try {
-                logger.info('POST_DUMP Request received')
-
                 // Permission check
                 if (!req.body || !req.headers.id) {
                     return res.status(400).send({ error: 'Malformed request.' });
@@ -40,7 +41,7 @@ module.exports = function setupSourceRoutes(router) {
                     return res.status(403).send({ error: 'Permission denied.' });
                 }
 
-                const result = await dumpLib(req.body.data);
+                const result = await importLib(req.body.data);
 
                 logger.info(`Result: ${JSON.stringify(result)}`);
 
