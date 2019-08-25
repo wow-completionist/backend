@@ -30,5 +30,8 @@
     "mongodb-memory-server": "^2.9.3",
     "nodemon": "^1.19.1",
     "supertest": "^4.0.2"
+  },
+  "engines": {
+    "node": "12.8.0"
   }
 }
