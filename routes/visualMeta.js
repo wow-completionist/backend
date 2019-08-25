@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
 const util = require('../lib/util');
 
-
 module.exports = function setupVidualMetaRoutes(router) {
     router.get(
         endpoints.GET_VISUAL_META,
