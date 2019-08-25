@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const ItemSchema = new Schema({
+const SourceSchema = new Schema({
     invType: Number,
     visualID: Number,
     sourceID: Number,
@@ -16,6 +16,6 @@ const ItemSchema = new Schema({
     timestamps: true
 });
 
-const ItemModel = model('Item', ItemSchema);
+const SourceModel = model('Source', SourceSchema);
 
-module.exports = ItemModel;
+module.exports = SourceModel;

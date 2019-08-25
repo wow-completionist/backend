@@ -1,7 +1,7 @@
 const express = require('express');
 const logger = require('../lib/logger');
 const importLib = require('../lib/import');
-const ItemModel = require('../models/item');
+const SourceModel = require('../models/source');
 const UserModel = require('../models/user');
 const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
@@ -16,7 +16,7 @@ module.exports = function setupSourceRoutes(router) {
         async function getSourceListEndpoint (req, res) {
             logger.info('GET_SOURCE_LIST Request received', req)
             try {
-                const findResult = await ItemModel.find({}).lean();
+                const findResult = await SourceModel.find({}).lean();
                 logger.info(`found: ${findResult.length} items`, req);
                 return res.status(200).send(findResult);
             }
