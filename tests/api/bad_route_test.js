@@ -1,6 +1,6 @@
 const app = require('../../lib/app');
 const request = require('supertest');
-const {expect} = require('chai');
+const { expect } = require('chai');
 
 describe('Bad route |', () => {
     it('GET /foo | returns an error', async () => {

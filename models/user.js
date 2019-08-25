@@ -7,8 +7,8 @@ const UserSchema = new Schema({
         required: true
     },
     battletag: String, // from battle.net
-    characterData: [Schema.Types.Mixed], // from battle.net
-    collected: [Number],
+    characterData: [ Schema.Types.Mixed ], // from battle.net
+    collected: [ Number ],
     role: String,
     token: String
 }, {

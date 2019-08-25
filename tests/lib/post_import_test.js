@@ -1,4 +1,4 @@
-const {expect} = require('chai');
+const { expect } = require('chai');
 
 const base = require('../base');
 const importLib = require('../../lib/import');

@@ -8,6 +8,7 @@
     "start": "node api.js",
     "dev": "nodemon api.js",
     "lint": "eslint .",
+    "lintfix": "eslint . --fix",
     "test": "npm run lint && mocha --exit ./tests/master.js"
   },
   "author": "Geoffrey Emerson",

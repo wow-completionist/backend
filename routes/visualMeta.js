@@ -34,13 +34,13 @@ module.exports = function setupVidualMetaRoutes(router) {
                     logger.info('POST_VISUAL_META missing body or id.')
                     return res.status(400).send({ error: 'Malformed request.' });
                 }
-                const userData = await UserModel.findOne({id: req.headers.id});
+                const userData = await UserModel.findOne({ id: req.headers.id });
                 if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
                     logger.info(`POST_VISUAL_META permission denied for id:${id}`)
                     return res.status(403).send({ error: 'Permission denied.' });
                 }
 
-                const {visualID} = req.params;
+                const { visualID } = req.params;
                 const incomingVisualMeta = req.body;
 
                 incomingVisualMeta.visualID = visualID;

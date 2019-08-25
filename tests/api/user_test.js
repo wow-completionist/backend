@@ -1,5 +1,5 @@
 const request = require('supertest');
-const {expect} = require('chai');
+const { expect } = require('chai');
 const app = require('../../lib/app');
 const endpoints = require('../../config/routes');
 const { resetMongoose, setFixtureUser, createToken } = require( '../base');
@@ -9,11 +9,11 @@ describe('User route |', () => {
 
     it('GET /users | returns a list of users', async () => {
         const token = createToken()
-        await setFixtureUser({id:'12345', token})
+        await setFixtureUser({ id:'12345', token })
 
         const result = await request(app)
             .get(endpoints.GET_USER_LIST)
-            .set({authorization: `Bearer ${token}`})
+            .set({ authorization: `Bearer ${token}` })
 
         expect(result.status).to.equal(200)
 
@@ -23,12 +23,12 @@ describe('User route |', () => {
 
     it('GET /user/:userId | returns specified user', async () => {
         const token = createToken()
-        await setFixtureUser({id: '11111', token})
+        await setFixtureUser({ id: '11111', token })
 
         const testRoute = endpoints.GET_USER_BY_ID.replace(':userId', '11111')
         const result = await request(app)
             .get(testRoute)
-            .set({authorization: `Bearer ${token}`})
+            .set({ authorization: `Bearer ${token}` })
 
         expect(result.status).to.equal(200)
 
@@ -37,14 +37,14 @@ describe('User route |', () => {
 
     it('POST /collected | adds collected sourceIDs to user record', async () => {
         const token = createToken()
-        await setFixtureUser({id: '11111', token})
+        await setFixtureUser({ id: '11111', token })
 
-        const newSources = [123,124,125];
+        const newSources = [ 123,124,125 ];
 
         const testRoute = endpoints.POST_COLLECTED;
         const res = await request(app).post(testRoute)
             .send(newSources)
-            .set({authorization: `Bearer ${token}`})
+            .set({ authorization: `Bearer ${token}` })
 
         expect(res.status).to.equal(200);
 

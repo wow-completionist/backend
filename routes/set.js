@@ -35,7 +35,7 @@ module.exports = function setupSetRoutes(router) {
                 if (!req.body || !req.headers.id) {
                     return res.status(400).send({ error: 'Malformed request.' });
                 }
-                const userData = await UserModel.findOne({id: req.headers.id});
+                const userData = await UserModel.findOne({ id: req.headers.id });
                 if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
                     return res.status(403).send({ error: 'Permission denied.' });
                 }
@@ -45,7 +45,7 @@ module.exports = function setupSetRoutes(router) {
                 // Could not get mongoose to validate the unique slug, so must check manually
                 const dupeCheck = await SetModel.find({ name: newSet.name });
                 if (dupeCheck.length > 0) {
-                    return res.status(400).send({err:`A set with the name "${dupeCheck[0].name}" already exists.`})
+                    return res.status(400).send({ err:`A set with the name "${dupeCheck[0].name}" already exists.` })
                 }
 
                 newSet.setId = uuidv4();
@@ -69,7 +69,7 @@ module.exports = function setupSetRoutes(router) {
         util.routeLogs('POST_SET_UPDATE'),
         async function postSetUpdateEndpoint (req, res) {
             try {
-                const { body: updates = {}} = req;
+                const { body: updates = {} } = req;
                 const { visualID, slot } = updates;
                 const { id: userId } = req.headers;
                 const { setId: updateSetId } = req.params;
@@ -80,7 +80,7 @@ module.exports = function setupSetRoutes(router) {
                 }
 
                 // Permission check
-                const userData = await UserModel.findOne({id: userId});
+                const userData = await UserModel.findOne({ id: userId });
                 if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
                     return res.status(403).send({ error: 'Permission denied.' });
                 }
@@ -88,23 +88,23 @@ module.exports = function setupSetRoutes(router) {
                 const updateSet = await SetModel.findOne({ setId: updateSetId });
                 if (!updateSet) {
                     logger.info(`Status 400: Set ID "${updateSetId}" not found in database.`)
-                    return res.status(400).send({err:`Set ID "${updateSetId}" not found in database.`})
+                    return res.status(400).send({ err:`Set ID "${updateSetId}" not found in database.` })
                 }
 
                 if (!visualID && !slot) {
-                    const result = await SetModel.updateOne({setId: updateSetId}, updates);
+                    const result = await SetModel.updateOne({ setId: updateSetId }, updates);
                     logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
                     return res.status(200).send(result);
                 }
 
                 if (!visualID && !slot) {
                     logger.info(`Status 400: Missing update data. | body: ${updates}`);
-                    return res.status(400).send({err:'Insufficient data to update.'})
+                    return res.status(400).send({ err:'Insufficient data to update.' })
                 }
 
                 const update = {};
                 update[slot] = visualID;
-                const result = await SetModel.updateOne({setId: updateSetId}, { $set: update });
+                const result = await SetModel.updateOne({ setId: updateSetId }, { $set: update });
 
                 logger.info(`Set update result: ${JSON.stringify(result, null, 2)}`);
 
@@ -123,7 +123,7 @@ module.exports = function setupSetRoutes(router) {
         async function postSetUpdateEndpoint (req, res) {
             try {
                 const { id: userId } = req.headers;
-                const {setId, slot, visualID} = req.params;
+                const { setId, slot, visualID } = req.params;
 
                 // Validate request
                 if (!userId) {
@@ -134,7 +134,7 @@ module.exports = function setupSetRoutes(router) {
                 }
 
                 // Permission check
-                const userData = await UserModel.findOne({id: userId});
+                const userData = await UserModel.findOne({ id: userId });
                 if (!userData || (userData.role !== 'write' && userData.role !== 'admin')) {
                     return res.respond(403, { error: 'Permission denied.' });
                 }
@@ -145,7 +145,7 @@ module.exports = function setupSetRoutes(router) {
                 }
 
                 if (!updateSet[slot] || !updateSet[slot] == visualID) {
-                    return res.respond(400, {err:`Visual ID "${visualID}" is not assigned to slot "${slot}" in set "${setId}"`});
+                    return res.respond(400, { err:`Visual ID "${visualID}" is not assigned to slot "${slot}" in set "${setId}"` });
                 }
 
                 const update = {};

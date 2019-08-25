@@ -37,7 +37,7 @@ module.exports = function setupUserRoutes (router) {
             const { userId } = req.params;
 
             if (!userId) {
-                return res.status(400).send({error: 'Missing userId.'})
+                return res.status(400).send({ error: 'Missing userId.' })
             }
 
             if (!req.token.verified) {
@@ -52,7 +52,7 @@ module.exports = function setupUserRoutes (router) {
 
                 if (!findResult) {
                     logger.error(`User not found:${userId}`)
-                    return res.status(400).send({error: `userId:${userId} not found in DB.`})
+                    return res.status(400).send({ error: `userId:${userId} not found in DB.` })
                 }
 
                 delete findResult.token;
@@ -72,7 +72,7 @@ module.exports = function setupUserRoutes (router) {
         async function postUserEndpoint (req, res) {
             const newUserId = uuidv4()
 
-            const newUser = new UserModel({userId: newUserId, ...req.body})
+            const newUser = new UserModel({ userId: newUserId, ...req.body })
             try {
                 const result = await newUser.save();
                 logger.info(`User create result: ${JSON.stringify(result)}`);
@@ -98,14 +98,14 @@ module.exports = function setupUserRoutes (router) {
 
                 if (!collected || collected.length === 0) {
                     logger.info('Missing data in collected property')
-                    return res.status(400).send({error: 'Missing data in collected property'})
+                    return res.status(400).send({ error: 'Missing data in collected property' })
                 }
 
                 await UserModel.findOneAndUpdate({ id: userId }, { collected });
 
                 logger.info(`Saved ${collected.length} sourceIDs`)
 
-                res.status(200).send({message: `Saved ${collected.length} sourceIDs for user:${userId}`});
+                res.status(200).send({ message: `Saved ${collected.length} sourceIDs for user:${userId}` });
             }
             catch (err) {
                 logger.error(err);
