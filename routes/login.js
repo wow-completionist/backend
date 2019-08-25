@@ -1,21 +1,18 @@
 /* eslint-disable camelcase */
-const express = require('express');
 const querystring = require('querystring');
 const request = require('request-promise-native')
 
 const logger = require('../lib/logger');
 const UserModel = require('../models/user');
-const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
-const auth = require('../lib/auth');
-
-const uuidv4 = require('uuid/v4');
+const util = require('../lib/util');
 
 let redirect_uri = process.env.REDIRECT_URI || 'http://localhost:4000/callback';
 
 module.exports = function setupLoginRoutes (router) {
     router.get(
-        '/login',
+        endpoints.POST_LOGIN,
+        util.routeLogs('POST_LOGIN'),
         async function (req, res) {
             logger.info('Login requested - redirecting to battle.net', req);
             res.redirect('https://us.battle.net/oauth/authorize?' +
@@ -30,7 +27,10 @@ module.exports = function setupLoginRoutes (router) {
         }
     )
 
-    router.get('/callback', async function (req, res) {
+    router.get(
+        endpoints.GET_CALLBACK,
+        util.routeLogs('GET_CALLBACK'),
+        async function getCallback(req, res) {
         logger.info('Callback received from battle.net, now confirming', req)
         let code = req.query.code || null
         let authOptions = {
@@ -91,7 +91,8 @@ module.exports = function setupLoginRoutes (router) {
     })
 
     router.get(
-        '/userCharacters',
+        endpoints.GET_USER_CHARACTERS,
+        util.routeLogs('GET_USER_CHARACTERS'),
         async function (req, res) {
             logger.info('Wow Character Data requested', req);
             let accessToken = req.query.access_token || null

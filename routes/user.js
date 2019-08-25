@@ -5,14 +5,14 @@ const logger = require('../lib/logger');
 const auth = require('../lib/auth');
 const UserModel = require('../models/user');
 const endpoints = require('../config/routes');
+const util = require('../lib/util');
 
 module.exports = function setupUserRoutes (router) {
     router.get(
         endpoints.GET_USER_LIST,
+        util.routeLogs('GET_USER_LIST'),
         auth.tokenCheck,
         async function getUserListEndpoint (req, res) {
-            logger.info('GET_USER_LIST Request received', req)
-
             // TODO: Add admin check
 
             try {
@@ -31,6 +31,7 @@ module.exports = function setupUserRoutes (router) {
 
     router.get(
         endpoints.GET_USER_BY_ID,
+        util.routeLogs('GET_USER_BY_ID'),
         auth.tokenCheck,
         async function getUserByIdEndpoint (req, res) {
             const { userId } = req.params;
@@ -52,19 +53,19 @@ module.exports = function setupUserRoutes (router) {
                     return res.status(400).send({error: `userId:${userId} not found in DB.`})
                 }
 
-                logger.info(`GET_USER_BY_ID ${userId} success`);
-                res.status(200).send(findResult);
+                return res.respond(200, findResult);
             }
             catch (err) {
-                res.status(500).send(err);
+                return res.respond(500, err);
             }
         }
     )
 
-    router.post(endpoints.POST_USER,
+    router.post(
+        endpoints.POST_USER,
+        util.routeLogs('POST_USER'),
         bodyParser.json(),
         async function postUserEndpoint (req, res) {
-            logger.info('POST_USER Request received', req)
             const newUserId = uuidv4()
 
             const newUser = new UserModel({userId: newUserId, ...req.body})
@@ -81,7 +82,9 @@ module.exports = function setupUserRoutes (router) {
         }
     )
 
-    router.post(endpoints.POST_COLLECTED,
+    router.post(
+        endpoints.POST_COLLECTED,
+        util.routeLogs('POST_COLLECTED'),
         bodyParser.json(),
         async function postUserEndpoint (req, res) {
             try {

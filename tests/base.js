@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const expect = require('chai').expect;
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const logger = require('../lib/logger');
 const jwt = require('jsonwebtoken');
@@ -30,7 +29,7 @@ async function startMongoose() {
 
         mongoose.connection.on('error', console.error.bind(console, 'connection error:'));
 
-        return new Promise((resolve,reject)=> {
+        return new Promise((resolve)=> {
             mongoose.connection.once('open', function() {
                 logger.info('STARTUP: Connected to database')
                 resolve();

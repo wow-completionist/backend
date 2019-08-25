@@ -1,18 +1,15 @@
-const express = require('express');
-const logger = require('../lib/logger');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const cors = require('cors');
 const uuidv4 = require('uuid/v4');
-
-const endpoints = require('../config/routes');
+const bodyParser = require('body-parser');
 const util = require('../lib/util');
+const logger = require('../lib/logger');
 const SetModel = require('../models/set');
 const UserModel = require('../models/user');
+const endpoints = require('../config/routes');
 
 module.exports = function setupSetRoutes(router) {
     router.get(
         endpoints.GET_SET_LIST,
+        util.routeLogs('GET_SET_LIST'),
         async function getSetListEndpoint (req, res) {
             logger.info('GET_SET_LIST Request received', req)
             try {
@@ -26,8 +23,10 @@ module.exports = function setupSetRoutes(router) {
         }
     )
 
-    router.post(endpoints.POST_SET,
+    router.post(
+        endpoints.POST_SET,
         bodyParser.json(),
+        util.routeLogs('POST_SET'),
         async function postSetEndpoint (req, res) {
             try {
                 logger.info('POST_SET Request received', req)
@@ -64,7 +63,8 @@ module.exports = function setupSetRoutes(router) {
     )
 
     // Changes to a set record from frontend admin
-    router.post(endpoints.POST_SET_UPDATE,
+    router.post(
+        endpoints.POST_SET_UPDATE,
         bodyParser.json(),
         util.routeLogs('POST_SET_UPDATE'),
         async function postSetUpdateEndpoint (req, res) {
@@ -117,7 +117,8 @@ module.exports = function setupSetRoutes(router) {
         }
     )
 
-    router.delete(endpoints.DELETE_VISUAL_FROM_SET,
+    router.delete(
+        endpoints.DELETE_VISUAL_FROM_SET,
         util.routeLogs('DELETE_VISUAL_FROM_SET'),
         async function postSetUpdateEndpoint (req, res) {
             try {

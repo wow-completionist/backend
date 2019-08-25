@@ -1,19 +1,16 @@
-const express = require('express');
 const logger = require('../lib/logger');
-const dumpLib = require('../lib/dump');
 const VisualMetaModel = require('../models/visualMeta');
 const UserModel = require('../models/user');
 const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const axios = require('axios');
+const util = require('../lib/util');
+
 
 module.exports = function setupVidualMetaRoutes(router) {
     router.get(
         endpoints.GET_VISUAL_META,
+        util.routeLogs('GET_VISUAL_META'),
         async function getVisualMetaEndpoint (req, res) {
-            logger.info('GET_VISUAL_META Request received', req)
             try {
                 const findResult = await VisualMetaModel.find({}).lean();
                 logger.info(`found: ${findResult.length} items`, req);
@@ -25,7 +22,9 @@ module.exports = function setupVidualMetaRoutes(router) {
         }
     )
 
-    router.post(endpoints.POST_VISUAL_META,
+    router.post(
+        endpoints.POST_VISUAL_META,
+        util.routeLogs('POST_VISUAL_META'),
         bodyParser.json(),
         async function postItemUpdateEndpoint (req, res) {
             try {

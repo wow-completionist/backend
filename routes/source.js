@@ -1,4 +1,3 @@
-const express = require('express');
 const logger = require('../lib/logger');
 const importLib = require('../lib/import');
 const SourceModel = require('../models/source');
@@ -6,15 +5,12 @@ const UserModel = require('../models/user');
 const bodyParser = require('body-parser');
 const endpoints = require('../config/routes');
 const util = require('../lib/util');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const axios = require('axios');
 
 module.exports = function setupSourceRoutes(router) {
     router.get(
         endpoints.GET_SOURCE_LIST,
+        util.routeLogs('GET_SOURCE_LIST'),
         async function getSourceListEndpoint (req, res) {
-            logger.info('GET_SOURCE_LIST Request received', req)
             try {
                 const findResult = await SourceModel.find({}).lean();
                 logger.info(`found: ${findResult.length} items`, req);

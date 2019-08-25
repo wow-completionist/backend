@@ -20,6 +20,7 @@
         "no-alert": 0,
         "arrow-body-style": "off",
         "camelcase": "warn",
-        "semi-style": ["error", "last"]
+        "semi-style": ["error", "last"],
+        "no-unused-vars":"error"
     }
 }

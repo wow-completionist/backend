@@ -1,4 +1,3 @@
-const express = require( 'express')
 const logger = require( '../lib/logger')
 
 module.exports = function setupCatchAllRoute (router) {

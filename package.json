@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "test": "npm run lint && mocha --exit ./tests/master.js"
   },
-  "author": "",
+  "author": "Geoffrey Emerson",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.0",
