@@ -7,7 +7,7 @@ const UserModel = require('../models/user');
 const endpoints = require('../config/routes');
 const util = require('../lib/util');
 
-let backendUri = process.env.REDIRECT_URI || 'http://localhost:4000';
+let backendUri = process.env.BACKEND_URI || 'http://localhost:4000';
 let frontendUri = process.env.FRONTEND_URI || 'http://localhost:3000'
 
 module.exports = function setupLoginRoutes (router) {
@@ -18,9 +18,9 @@ module.exports = function setupLoginRoutes (router) {
             logger.info('Login requested - redirecting to battle.net', req);
             const oauthQuery = querystring.stringify({
                 response_type: 'code',
-                client_id: `${process.env.WOW_CLIENT_ID}/callback`,
+                client_id: process.env.WOW_CLIENT_ID,
                 scope: 'wow.profile',
-                redirect_uri: backendUri,
+                redirect_uri: `${backendUri}/callback`,
                 state: 'edfrgth45678'
             })
             res.redirect(`https://us.battle.net/oauth/authorize?${oauthQuery}`
@@ -38,7 +38,7 @@ module.exports = function setupLoginRoutes (router) {
             url: 'https://us.battle.net/oauth/token',
             form: {
                 code: code,
-                redirect_uri: backendUri,
+                redirect_uri: `${backendUri}/callback`,
                 grant_type: 'authorization_code',
                 scope: 'wow.profile',
 
