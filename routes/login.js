@@ -15,16 +15,15 @@ module.exports = function setupLoginRoutes (router) {
         endpoints.POST_LOGIN,
         util.routeLogs('POST_LOGIN'),
         async function (req, res) {
-            logger.info('Login requested - redirecting to battle.net', req);
+            logger.info(`Login requested - redirecting to battle.net - including callback ${backendUri}/callback`, req);
             const oauthQuery = querystring.stringify({
                 response_type: 'code',
                 client_id: process.env.WOW_CLIENT_ID,
                 scope: 'wow.profile',
                 redirect_uri: `${backendUri}/callback`,
                 state: 'edfrgth45678'
-            })
-            res.redirect(`https://us.battle.net/oauth/authorize?${oauthQuery}`
-            )
+            });
+            res.redirect(`https://us.battle.net/oauth/authorize?${oauthQuery}`);
         }
     )
 
@@ -40,8 +39,7 @@ module.exports = function setupLoginRoutes (router) {
                 code: code,
                 redirect_uri: `${backendUri}/callback`,
                 grant_type: 'authorization_code',
-                scope: 'wow.profile',
-
+                scope: 'wow.profile'
             },
             headers: {
                 Authorization: `Basic ${new Buffer(
