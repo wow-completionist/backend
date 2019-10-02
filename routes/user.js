@@ -89,8 +89,8 @@ module.exports = function setupUserRoutes (router) {
     router.post(
         endpoints.POST_COLLECTED,
         bodyParser.json(),
-        util.routeLogs('POST_COLLECTED'),
         auth.tokenCheck,
+        util.routeLogs('POST_COLLECTED'),
         async function postUserEndpoint (req, res) {
             try {
                 const { id: userId } = req.token.tokenUser;
