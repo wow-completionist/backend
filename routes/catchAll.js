@@ -4,7 +4,7 @@ module.exports = function setupCatchAllRoute (router) {
     router.all(
         '/',
         function rootEndpoint (req, res) {
-            logger.info(`Bad Route Request received: ${req.method} ${req.url}`, req)
+            logger.info(`Request received on root: ${req.method} ${req.url}`, req)
             const welcome = {
                 status: '200',
                 message: 'Welcome to Completionist Guru',

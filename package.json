@@ -1,6 +1,6 @@
 {
   "name": "completionist-backend",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Backend for Completionist website",
   "repository": "https://github.com/wow-completionist/backend",
   "main": "api.js",
